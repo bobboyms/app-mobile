@@ -14,173 +14,10 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo';
 import { TextInputMask } from 'react-native-masked-text'
-import ModalDropdown from 'react-native-modal-dropdown';
+import DateTimePicker from 'react-native-modal-datetime-picker';
 import ListaDeSelecao from './componentes/ListaSelecao';
+import Lancamento from './componentes/Lancamento';
 
-
-class Lancamento extends React.Component {
-
-  state = {
-
-    dadosContasApagar:[
-      {
-          nome:"Educaçao",
-          icone:require("./assets/iconEscola.png")
-      },
-      {
-          nome:"Alimentaçao",
-          icone:require("./assets/iconFood.png")
-      },
-      {
-          nome:"Carro",
-          icone:require("./assets/iconCarro.png")
-      }, 
-      
-    ],
-
-    dadosDaConta:[
-      {
-          nome:"Banco do Brasil",
-          icone:require("./assets/iconMoney.png")
-      },
-      {
-        nome:"Caixa",
-        icone:require("./assets/iconMoney.png")
-    },
-    ],
-
-    valor: '0,0',
-    
-    ativoModalDespesa: false,
-    despesa: { nome: "Selecione uma despesa", icone:require('./assets/moneyIcon.png') },
-
-    ativoModalConta: false,
-    conta: { nome: "Selecione uma conta", icone:require('./assets/moneyIcon.png') },
-
-  }
-
-  fecharModalDespesa = () => {
-    this.setState({ ativoModalDespesa: false })
-  }
-
-  fecharModalConta = () => {
-    this.setState({ ativoModalConta: false })
-  }
-
-  selecionarItemDespesa = (item) => {
-
-    const ativoModalDespesa = false;
-    const despesa = item;
-
-    this.setState({ ativoModalDespesa, despesa })
-  }
-
-  selecionarItemConta = (item) => {
-
-    const ativoModalConta = false;
-    const conta = item;
-
-    this.setState({ ativoModalConta, conta })
-  }
-
-  render() {
-
-    const { aberto, fecharModal } = this.props;
-
-    return (
-      <Modal
-        animationType="slide"
-        transparent={false}
-        visible={aberto}
-        onRequestClose={() => {
-          Alert.alert('Modal has been closed.');
-        }}>
-        <View style={{ paddingTop: 20 }}>
-          
-          <TouchableHighlight
-            onPress={() => {
-              fecharModal();
-            }}>
-            <Text>Fechar modal</Text>
-          </TouchableHighlight>
-        </View>
-        <View style={styles.container}>
-        <Text>LANÇAR DESPESA</Text>
-          <View style={styles.SectionStyle}>
-            <Image source={require('./assets/moneyIcon.png')} style={styles.ImageStyle} />
-            <TextInputMask
-              type={'money'}
-              options={{
-                precision: 2,
-                separator: ',',
-                delimiter: '.',
-                unit: 'R$',
-                suffixUnit: ''
-              }}
-              value={this.state.valor}
-              onChangeText={text => {
-                this.setState({
-                  valor: text
-                })
-              }}
-              style={{
-                height: 50,
-                borderRadius: 10,
-                width: "90%",
-              }}
-            />
-          </View>
-
-          <View style={styles.SectionStyle}>
-            <Image source={this.state.despesa.icone} style={styles.ImageStyle} />
-            <TouchableHighlight style={{
-              height: 50,
-              borderRadius: 10,
-              marginTop: 33,
-              width: "90%",
-            }} onPress={() => {
-              this.setState({ ativoModalDespesa: true })
-            }}>
-              <View ><Text>{this.state.despesa.nome}</Text></View>
-            </TouchableHighlight>
-
-          </View>
-
-          <View style={styles.SectionStyle}>
-            <Image source={this.state.conta.icone} style={styles.ImageStyle} />
-            <TouchableHighlight style={{
-              height: 50,
-              borderRadius: 10,
-              marginTop: 33,
-              width: "90%",
-            }} onPress={() => {
-              this.setState({ ativoModalConta: true })
-            }}>
-              <View ><Text>{this.state.conta.nome}</Text></View>
-            </TouchableHighlight>
-
-          </View>
-
-        </View>
-
-        <ListaDeSelecao
-          ativo={this.state.ativoModalDespesa}
-          fecharModal={this.fecharModalDespesa}
-          selecionarItem={this.selecionarItemDespesa}
-          dados={this.state.dadosContasApagar} />
-
-        <ListaDeSelecao
-          ativo={this.state.ativoModalConta}
-          fecharModal={this.fecharModalConta}
-          selecionarItem={this.selecionarItemConta}
-          dados={this.state.dadosDaConta} />
-
-
-      </Modal>
-
-    )
-  }
-}
 
 
 const Header = () => {
@@ -199,17 +36,26 @@ const Header = () => {
 export default class App extends React.Component {
 
   state = {
-    aberto: false,
+    modalDespesaAberto: false,
+
+    lancamentos: []
+
   }
 
-  lancarDespesa = () => {
-    this.abrirModal()
+  receberLancamento = (lancamento) => {
+
+
+    this.state.lancamentos.push(lancamento);
+    const lancamentos = this.state.lancamentos;
+    this.setState({ lancamentos })
+
+
+
   }
 
-  fecharModal = () => {
-    this.setState({ aberto: false })
-    // alert("opa karai")
 
+  fecharModalDespesa = () => {
+    this.setState({ modalDespesaAberto: false })
   }
 
   abrirModal = () => {
@@ -225,12 +71,7 @@ export default class App extends React.Component {
     return (
       <View style={{ backgroundColor: "#d2d6d8", flex: 1 }}>
 
-        <Lancamento
-          aberto={this.state.aberto}
-          fecharModal={this.fecharModal}
-        />
-
-        <Header />
+        <Header></Header>
         <View style={{ position: "relative", top: -20, width: "100%" }} >
           <View style={[styles.boxComSombra, styles.sombra]}>
             <Text>VISAO GERAL</Text>
@@ -248,10 +89,24 @@ export default class App extends React.Component {
           </View>
         </View>
 
-        <Lancamento
-          aberto={this.state.aberto}
-          fecharModal={this.fecharModal}
-        />
+        <ScrollView>
+          {this.state.lancamentos.map((valor, k) => {
+            return (
+              <View style={{ width: "100%", flexDirection: "row" }} key={k} >
+                <Image source={valor.despesa.icone} style={styles.ImageStyle} />
+                <View style={{ width: "100%", height: 40, backgroundColor: "blue", flexDirection: "column"  }}>
+                  <Text>Texto</Text>
+                  <Text style={{flexDirection: 'row',
+    justifyContent: 'flex-end',
+ }}>Texto</Text>
+                </View>
+                
+              </View>
+            )
+          })}
+
+        </ScrollView>
+
 
         <View style={{
           width: '100%',
@@ -264,13 +119,20 @@ export default class App extends React.Component {
         }}>
           <Button
             onPress={() => {
-              this.setState({ aberto: true })
+              this.setState({ modalDespesaAberto: true })
             }}
             title="Lancar despesa"
             color="#841584"
             accessibilityLabel="Learn more about this purple button"
           />
         </View>
+
+        <Lancamento
+          aberto={this.state.modalDespesaAberto}
+          fecharModal={this.fecharModalDespesa}
+          receberLancamento={this.receberLancamento}
+        />
+
       </View>
     );
   }
