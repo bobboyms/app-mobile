@@ -14,31 +14,15 @@ import { LinearGradient } from 'expo';
 
 export default class ListaDeSelecao extends React.Component {
 
-    state = {
-        dados: [
-            {
-                nome:"Educaçao",
-                icone:require("../assets/iconEscola.png")
-            },
-            {
-                nome:"Alimentaçao",
-                icone:require("../assets/iconFood.png")
-            },
-            {
-                nome:"Carro",
-                icone:require("../assets/iconCarro.png")
-            },
-
-            
-        ]
-    }
-
     render() {
+
+        const { ativo, fecharModal, selecionarItem, dados } = this.props;
+
         return(
             <Modal
               animationType="slide"
-              transparent={true}
-              visible={true}
+              transparent={false}
+              visible={ativo}
               onRequestClose={() => {
                 Alert.alert('Modal has been closed.');
               }}>
@@ -52,9 +36,6 @@ export default class ListaDeSelecao extends React.Component {
                     <Image
                         //We are showing the Image from online
                         source={require('../assets/iconFinder.png')}
-                        
-                        //You can also show the image from you project directory like below
-                        //source={require('./Images/phone.png')}
             
                         //Image Style
                         style={{
@@ -73,7 +54,7 @@ export default class ListaDeSelecao extends React.Component {
                                 borderWidth: 0.5,
                                 borderColor: '#aad2ff',
                                 borderRadius: 5,
-                     }}
+                        }}
                         placeholder="Buscar categoria"
                         underlineColorAndroid="transparent"
                     />
@@ -83,9 +64,11 @@ export default class ListaDeSelecao extends React.Component {
 
                 <ScrollView>
 
-                    {this.state.dados.map((v,k) => {
+                {dados.map((v,k) => {
                         return(
-                            <TouchableHighlight key={k} onPress={() => {}} style={[styles.line]}>
+                            <TouchableHighlight key={k} onPress={() => {
+                                selecionarItem(v)
+                            }} style={[styles.line]}>
                                 <LinearGradient colors={['#ffffff', '#eaedf9']} style={styles.lineGradiente}>
                                     <Image source={v.icone} style={styles.imageStyle}></Image>
                                     <Text>{v.nome}</Text>
@@ -98,7 +81,11 @@ export default class ListaDeSelecao extends React.Component {
                 </ScrollView>
 
 
-                <TouchableHighlight onPress={() => {}} style={{
+                <TouchableHighlight onPress={() => {
+
+                    fecharModal();
+
+                }} style={{
                     borderBottomColor:"#c5c8cc",
                     borderBottomWidth:1,
                     width:"100%", height:50,
