@@ -57,7 +57,7 @@ export default class ExtratoLancamento extends React.Component {
                       alignItems: "flex-end"
                     }}
                   >
-                    <Text style={{ color: "blue" }}>{valor.valor}</Text>
+                    <Text style={valor.tipoLancamento === "DESPESA" ? { color: "red" } : { color: "blue" }}>{valor.valor}</Text>
                   </View>
                 </View>
 

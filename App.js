@@ -19,6 +19,7 @@ import DateTimePicker from "react-native-modal-datetime-picker";
 import ListaDeSelecao from "./componentes/ListaSelecao";
 import Lancamento from "./componentes/Lancamento";
 import ExtratoLancamento from "./componentes/ExtratoLancamentos";
+import { formatMoney } from "./componentes/Utils";
 
 const Header = ({ saldo }) => {
   return (
@@ -33,7 +34,7 @@ const Header = ({ saldo }) => {
         }}
       >
         <Text style={{ fontSize: 30, fontWeight: "bold", color: "#ffffff" }}>
-          {saldo}
+          {"R$ "}{formatMoney(saldo)}
         </Text>
         <Text style={{ fontSize: 15, fontWeight: "bold", color: "#ffffff" }}>
           Saldo em contas
@@ -50,32 +51,28 @@ export default class App extends React.Component {
     tipoLancamento: ""
   };
 
-  saldoEmConta = () => {
-
-    const { lancamentos} = this.state;
+  atualizarSaldoEmConta = () => {
+    const { lancamentos } = this.state;
 
     let totalReceita = 0;
     let totalDespesas = 0;
     for (var i = 0; i < lancamentos.length; i++) {
-
       if (lancamentos[i].tipoLancamento === "DESPESA") {
         totalDespesas += lancamentos[i].valorFloat;
       } else {
-        totalReceita += lancamentos[i].valorFloat
+        totalReceita += lancamentos[i].valorFloat;
       }
-
     }
 
-    const saldo = (totalReceita - totalDespesas);
-    this.setState({saldo, totalDespesas, totalReceita})
-
+    const saldo = totalReceita - totalDespesas;
+    this.setState({ saldo, totalDespesas, totalReceita });
   };
 
   receberLancamento = lancamento => {
     this.state.lancamentos.push(lancamento);
     const lancamentos = this.state.lancamentos;
     this.setState({ lancamentos });
-    this.saldoEmConta()
+    this.atualizarSaldoEmConta();
   };
 
   fecharModalDespesa = () => {
@@ -113,7 +110,7 @@ export default class App extends React.Component {
                 <Text>Total de receitas</Text>
               </View>
               <View style={{ width: 113, alignItems: "flex-end" }}>
-                <Text style={{ color: "blue" }}>{this.state.totalReceita}</Text>
+                <Text style={{ color: "blue" }}>{"R$ "}{formatMoney(this.state.totalReceita)}</Text>
               </View>
             </View>
             <View style={styles.boxReceitaDespesa}>
@@ -131,7 +128,7 @@ export default class App extends React.Component {
                 <Text>Total de despesas</Text>
               </View>
               <View style={{ width: 113, alignItems: "flex-end" }}>
-                <Text style={{ color: "red" }}>{this.state.totalDespesas}</Text>
+                <Text style={{ color: "red" }}>{"R$ "}{formatMoney(this.state.totalDespesas)}</Text>
               </View>
             </View>
           </View>
