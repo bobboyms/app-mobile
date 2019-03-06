@@ -35,6 +35,21 @@ export default class Lancamento extends React.Component {
       }
     ],
 
+    dadosReceita: [
+        {
+          nome: "Salario",
+          icone: require("../assets/iconEscola.png")
+        },
+        {
+          nome: "Venda de serviço",
+          icone: require("../assets/iconFood.png")
+        },
+        {
+          nome: "Venda de ativo",
+          icone: require("../assets/iconCarro.png")
+        }
+      ],
+
     dadosDaConta: [
       {
         nome: "Banco do Brasil",
@@ -47,10 +62,11 @@ export default class Lancamento extends React.Component {
     ],
 
     valor: "0,0",
+    valorFloat: 0,
 
     ativoModalDespesa: false,
     despesa: {
-      nome: "Selecione uma despesa",
+      nome:"",
       icone: require("../assets/iconCarrinho.png")
     },
 
@@ -65,11 +81,35 @@ export default class Lancamento extends React.Component {
     dataDaDespesa: { valor: "Selecione a data" }
   };
 
-  
+
+  validarDados = () => {
+    if (this.state.valorFloat <= 0) {
+      alert("Digite o valor");
+      return false;
+    }
+
+    if (this.state.despesa.nome === "Selecione uma despesa") {
+      alert("Selecione uma despesa");
+      return false;
+    }
+
+    if (this.state.conta.nome === "Selecione uma conta") {
+      alert("Selecione uma conta");
+      return false;
+    }
+
+    if (this.state.dataDaDespesa.valor === "Selecione a data") {
+      alert("Selecione a data do lançamento");
+      return false;
+    }
+
+    return true;
+  };
 
   resetarValores = () => {
     this.setState({
       valor: "0,0",
+      valorFloat: 0,
 
       ativoModalDespesa: false,
       despesa: {
@@ -123,7 +163,9 @@ export default class Lancamento extends React.Component {
   };
 
   render() {
-    const { aberto, fecharModal, receberLancamento } = this.props;
+
+    const { aberto, fecharModal, receberLancamento, tipoLancamento } = this.props;
+
 
     return (
       <Modal
@@ -132,6 +174,15 @@ export default class Lancamento extends React.Component {
         visible={aberto}
         onRequestClose={() => {
           alert("Modal has been closed.");
+        }}
+
+        onShow={() =>{
+            const despesa = {
+                icone: tipoLancamento === "DESPESA"? require("../assets/iconCarrinho.png") : require("../assets/iconMoney2.png"),
+                nome : tipoLancamento === "DESPESA" ? "Selecione uma despesa" : "Selecione uma receita"
+            }
+
+            this.setState({despesa})
         }}
       >
         <View
@@ -167,10 +218,14 @@ export default class Lancamento extends React.Component {
               }}
               value={this.state.valor}
               onChangeText={text => {
-                
                 const valor = text;
-                const valorFloat = parseFloat(text.replace("R$", "").replace(".","").replace(",","."))
-                this.setState({valor, valorFloat});
+                const valorFloat = parseFloat(
+                  text
+                    .replace("R$", "")
+                    .replace(".", "")
+                    .replace(",", ".")
+                );
+                this.setState({ valor, valorFloat });
               }}
               style={{
                 height: 50,
@@ -269,15 +324,18 @@ export default class Lancamento extends React.Component {
                 tipoLancamento: this.props.tipoLancamento,
                 descricao: this.state.descricao,
                 valor: this.state.valor,
-                valorFloat:this.state.valorFloat,
+                valorFloat: this.state.valorFloat,
                 despesa: this.state.despesa,
                 conta: this.state.conta,
                 dataDaDespesa: this.state.dataDaDespesa,
                 usuario: { nome: "Thiago" }
               };
-              receberLancamento(lancamento);
-              this.resetarValores();
-              fecharModal();
+
+              if (this.validarDados()) {
+                receberLancamento(lancamento);
+                this.resetarValores();
+                fecharModal();
+              }
             }}
             style={{
               height: 50,
@@ -285,7 +343,11 @@ export default class Lancamento extends React.Component {
             }}
           >
             <LinearGradient
-              colors={this.props.tipoLancamento === "DESPESA" ? ["#ad1641", "#f44242"] : ["#3cbc9e", "#135138"]}
+              colors={
+                this.props.tipoLancamento === "DESPESA"
+                  ? ["#ad1641", "#f44242"]
+                  : ["#3cbc9e", "#135138"]
+              }
               style={{
                 flexDirection: "row",
                 justifyContent: "center",
@@ -321,20 +383,31 @@ export default class Lancamento extends React.Component {
             </View>
           </TouchableOpacity>
         </View>
-
+        
+        { this.props.tipoLancamento === "DESPESA" ?
         <ListaDeSelecao
           ativo={this.state.ativoModalDespesa}
           fecharModal={this.fecharModalDespesa}
           selecionarItem={this.selecionarItemDespesa}
-          dados={this.state.dadosContasApagar}
+          dados={this.state.dadosContasApagar}          
+        />:
+        <ListaDeSelecao
+          ativo={this.state.ativoModalDespesa}
+          fecharModal={this.fecharModalDespesa}
+          selecionarItem={this.selecionarItemDespesa}
+          dados={this.state.dadosReceita}
         />
+        
+        }
 
+
+        
         <ListaDeSelecao
           ativo={this.state.ativoModalConta}
           fecharModal={this.fecharModalConta}
           selecionarItem={this.selecionarItemConta}
           dados={this.state.dadosDaConta}
-        />
+        /> 
 
         <DateTimePicker
           isVisible={this.state.isDateTimePickerVisible}
